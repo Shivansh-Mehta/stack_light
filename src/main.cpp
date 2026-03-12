@@ -3,7 +3,7 @@
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
-#include <std_msgs/msg/string.h>
+#include <std_msgs/msg/int32.h>
 
 #define RED_PIN PIN_A4    // pin 18
 #define YELLOW_PIN PIN_A5 // pin 19
@@ -23,7 +23,7 @@ rclc_support_t support;
 rcl_node_t node;
 rcl_subscription_t subscriber;
 rclc_executor_t executor;
-std_msgs__msg__String i_stack_light_cmd_input;
+std_msgs__msg__Int32 i_stack_light_cmd_input;
 rcl_allocator_t allocator;
 
 void stack_light_callback(const void *i_stack_light_cmd_input);
@@ -53,7 +53,7 @@ void setup()
 
   rclc_subscription_init_default(&subscriber,
                                  &node,
-                                 ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),
+                                 ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
                                  "stacklight_topic");
 
   // main event loop
@@ -77,7 +77,7 @@ void loop()
 
 void stack_light_callback(const void *i_stack_light_cmd_input)
 {
-  const std_msgs__msg__String *stack_light_cmd_input = (const std_msgs__msg__String *)i_stack_light_cmd_input;
+  const std_msgs__msg__Int32 *stack_light_cmd_input = (const std_msgs__msg__Int32 *)i_stack_light_cmd_input;
   if (NULL == stack_light_cmd_input)
     return;
 
@@ -85,11 +85,7 @@ void stack_light_callback(const void *i_stack_light_cmd_input)
   digitalWrite(YELLOW_PIN, LOW);
   digitalWrite(GREEN_PIN, LOW);
 
-  sscanf(stack_light_cmd_input->data.data, "%d", color);
-  if (nullptr == color)
-    return;
-
-  switch (*color)
+  switch (stack_light_cmd_input->data)
   {
   case stack_light_color::red:
     digitalWrite(RED_PIN, HIGH);
