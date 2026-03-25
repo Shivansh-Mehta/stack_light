@@ -34,7 +34,7 @@ void setup()
   // USB serial comm setup
   set_microros_serial_transports(Serial);
 
-  // setting pins as output and at logic level low
+  // configuring GPIO
   pinMode(RED_PIN, OUTPUT);
   digitalWrite(RED_PIN, LOW);
   pinMode(YELLOW_PIN, OUTPUT);
@@ -49,12 +49,12 @@ void setup()
   rclc_support_init(&support, 0, NULL, &allocator);
 
   // node setup
-  rclc_node_init_default(&node, "stacklight_node", "", &support);
+  rclc_node_init_default(&node, "stacklight", "", &support);
 
   rclc_subscription_init_default(&subscriber,
                                  &node,
                                  ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-                                 "stacklight_topic");
+                                 "stacklight");
 
   // main event loop
   rclc_executor_init(&executor,
@@ -87,16 +87,22 @@ void stack_light_callback(const void *i_stack_light_cmd_input)
 
   switch (stack_light_cmd_input->data)
   {
-  case stack_light_color::red:
-    digitalWrite(RED_PIN, HIGH);
-    break;
   case stack_light_color::yellow:
     digitalWrite(YELLOW_PIN, HIGH);
     break;
   case stack_light_color::green:
     digitalWrite(GREEN_PIN, HIGH);
     break;
+  case stack_light_color::red:
+    digitalWrite(RED_PIN, HIGH);
+    break;
   case stack_light_color::disable:
+    digitalWrite(RED_PIN, LOW);
+    digitalWrite(YELLOW_PIN, LOW);
+    digitalWrite(GREEN_PIN, LOW);
+    break;
+  default:
+    digitalWrite(RED_PIN, HIGH);
     break;
   }
 }
